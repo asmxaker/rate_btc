@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+    mysql:
+        container_name: "statname_mysql"
+        image: mysql:5.7
+#        user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+        restart: always
+        ports:
+            - 3307:3306
+        volumes:
+            - ./docker/var/mysql:/var/lib/mysql
+            - ./docker/dump:/home/db
+            - ./docker/dump:/docker-entrypoint-initdb.d
+        environment:
+            MYSQL_ROOT_PASSWORD: "123"
+            MYSQL_DATABASE: "statname"
+            MYSQL_USER: "statname"
+            MYSQL_PASSWORD: "statname"
+    php:
+        container_name: "statname_php"
+        build: docker/php
+#        user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+        ports:
+            - 9002:9001
+        environment:
+            XDEBUG_CONFIG: "remote_host=192.168.1.104 remote_enable=1 remote_autostart=off  remote_port=9009"
+        volumes:
+            - ./docker/php/z-overrides.ini:/usr/local/etc/php/conf.d/z-overrides.ini
+            - ./:/var/www/html
+            - ./arhive:/mnt/twotb/ftp-storage
+        depends_on:
+            - mysql
+            - redis
+
+    nginx:
+        container_name: "statname_nginx"
+        build: ./docker/nginx
+        volumes:
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - ./:/var/www/html
+        ports:
+            - "8000:80"
+        depends_on:
+            - php
+
+    phpmyadmin:
+        container_name: "statname_phpmyadmin"
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - 8080:80
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: root
+            PMA_PASSWORD: "123"
+        depends_on:
+            - mysql
+    redis:
+        container_name: "statname_redis"
+        image: redis:latest
+        ports:
+            - "6379:6379"
+
+volumes:
+    mysql:
+        driver: local
