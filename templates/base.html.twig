@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
-    </head>
-    <body>
-        <h1>BTC Rate</h1>
-        <div id="app">
-            <rate-btc-chart></rate-btc-chart>
-        </div>
-        <script type="text/javascript" src="/dist/app.js"></script>
-        <style >
-            .small {
-                max-width: 600px;
-                margin:  150px auto;
-            }
-        </style>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title>BTC Rate</title>
+</head>
+<body>
+<h1>BTC Rate</h1>
+<div id="app">
+    <rate-btc-chart></rate-btc-chart>
+</div>
+<script type="text/javascript" src="/dist/app.js"></script>
+<link rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous">
+<style>
+    .small {
+        margin: 50px auto;
+    }
+</style>
+</body>
 </html>

@@ -1,49 +1,73 @@
 <template>
-    <div class="container">
-        {{chart}}
-
-        <line-chart class="small" :chart-data="datacollection"></line-chart>
-        <button @click="fillData()">Randomize</button>
+  <div class="container">
+    <div class="form-row">
+      <div class="col">
+        <select class="form-control" @change="changeRange">
+          <option v-for="el in dateRange" :value="el">{{el}}</option>
+        </select>
+      </div>
+      <div class="col">
+        <select class="form-control" @change="changeCurrency">
+          <option v-for="el in currencies" :value="el">{{el}}</option>
+        </select>
+      </div>
+      <div class="col">
+        <button class="btn btn-info" @click="fillData">Fill</button>
+      </div>
     </div>
+    <line-chart class="small" :chart-data="dataCollection"
+                :options="options"></line-chart>
+
+  </div>
 </template>
 
 <script>
   import LineChart from './LineChart.js'
+  import axios from 'axios'
 
   export default {
     components: {
       LineChart
     },
     props: {
-      chart: { type: String, default: "123" },
-
     },
     data() {
       return {
-        datacollection: {  }
+        dataCollection: {},
+        dateRange: [],
+        currencies: [],
+        range: '12h',
+        currency: 'USD',
+        options: {
+          responsive: true,
+          animation: {
+            duration: 0
+          }
+        }
       }
     },
-    mounted () {
+    mounted() {
       this.fillData()
+      this.getOptions()
     },
     methods: {
-      fillData () {
-        this.datacollection = {
-          labels: ['BTC', 'USD'],
-          datasets: [
-            {
-              label: '1',
-              data: [this.getRandomInt(), this.getRandomInt(),this.getRandomInt(),this.getRandomInt(),this.getRandomInt(),this.getRandomInt()]
-            }
-            , {
-              label: '6',
-              data: [this.getRandomInt(), this.getRandomInt(),this.getRandomInt(),this.getRandomInt(),this.getRandomInt(),this.getRandomInt(),this.getRandomInt(),]
-            }
-          ]
-        }
+      async fillData() {
+        await axios.post('/api/rate', { range: this.range, currency: this.currency })
+        .then(response => {
+          [this.dataCollection.labels, this.dataCollection.datasets] = response.data
+        });
       },
-      getRandomInt () {
-        return Math.floor(Math.random() * (20 - 5 + 1)) + 5
+      async getOptions() {
+        await axios.get('/api/params').then(response => {
+          [this.dateRange, this.currencies] = response.data
+        });
+      },
+
+      changeRange(value) {
+        this.range = value;
+      },
+      changeCurrency(value) {
+        this.currency = value;
       }
     }
   }
