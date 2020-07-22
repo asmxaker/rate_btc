@@ -18,7 +18,8 @@ class RatesRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Rates::class);
     }
-    public function findAllFromCurrencyAndDate($currency, $date): array
+
+    public function findAllFromCurrencyAndDate(int $currency, $date): array
     {
         $entityManager = $this->getEntityManager();
 
@@ -30,7 +31,6 @@ class RatesRepository extends ServiceEntityRepository
             limit 1 '
         )->setParameter('currency', $currency, 'dateTime', $date);
 
-        // returns an array of Product objects
         return $query->getResult();
     }
 }
