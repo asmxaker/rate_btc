@@ -1,25 +1,25 @@
 <template>
-  <div class="container">
-      {{dataCollection}}
-    <div class="form-row">
-      <div class="col">
-        <select class="form-control" v-model="range">
-          <option v-for="el in dateRange" :value="el">{{el}}</option>
-        </select>
-      </div>
-      <div class="col">
-        <select class="form-control" v-model="currency">
-          <option v-for="el in currencies" :value="el">{{el}}</option>
-        </select>
-      </div>
-      <div class="col">
-        <button class="btn btn-info" @click="fillData">Fill</button>
-      </div>
-    </div>
-    <line-chart class="small" :chart-data="dataCollection"
-                :options="options"></line-chart>
+    <div class="container">
+        {{datacollection}}
+        <div class="form-row">
+            <div class="col">
+                <select class="form-control" v-model="range">
+                    <option :value="el" v-for="el in dateRange">{{el}}</option>
+                </select>
+            </div>
+            <div class="col">
+                <select class="form-control" v-model="currency">
+                    <option :value="el" v-for="el in currencies">{{el}}</option>
+                </select>
+            </div>
+            <div class="col">
+                <button @click="fillData()" class="btn btn-info">Fill</button>
+            </div>
+        </div>
+        <line-chart :chart-data="datacollection"
+                    class="small"></line-chart>
 
-  </div>
+    </div>
 </template>
 
 <script>
@@ -30,11 +30,10 @@
     components: {
       LineChart
     },
-    props: {
-    },
-    data() {
+    props: {},
+    data () {
       return {
-        dataCollection: {},
+        datacollection: {},
         dateRange: [],
         currencies: [],
         range: '12h',
@@ -47,26 +46,30 @@
         }
       }
     },
-    mounted() {
+    mounted () {
       this.fillData()
       this.getOptions()
     },
     methods: {
-      async fillData() {
+      async fillData () {
         await axios.get('/api/rate', {
           params: {
             range: this.range,
             currency: this.currency
           }
         })
-        .then(response => {
-          [this.dataCollection.labels, this.dataCollection.datasets] = response.data
-        });
+          .then(response => {
+            console.log(response.data)
+            this.datacollection = response.data
+            // this.datacollection.labels = response.data.labels
+            // this.datacollection.datasets = response.data.datasets
+          })
+
       },
-      async getOptions() {
-        await axios.get('/api/params').then(response => {
+      getOptions () {
+        axios.get('/api/params').then(response => {
           [this.dateRange, this.currencies] = response.data
-        });
+        })
       }
     }
   }

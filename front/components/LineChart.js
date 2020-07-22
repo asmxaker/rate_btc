@@ -7,5 +7,11 @@ export default {
   props: ['options'],
   mounted () {
     this.renderChart(this.chartData, this.options)
+  },
+  watch: {
+    chartData () {
+      console.log('test')
+      this.$data._chart.update()
+    }
   }
 }

@@ -45,7 +45,8 @@ class ApiController extends AbstractFOSRestController
         shuffle($data);
 
         return $this->json([
-            $labels,
+            'labels'=>$labels,
+            'datasets' =>
             [
                 [
                     'label' => 'BTC/' . $currency,
