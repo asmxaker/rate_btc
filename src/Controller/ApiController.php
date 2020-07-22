@@ -3,6 +3,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Currencies;
+use App\Entity\Rates;
+use DateInterval;
+use DatePeriod;
+use DateTime;
+use DateTimeZone;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,13 +23,21 @@ class ApiController extends AbstractFOSRestController
 {
 
     /**
+     * date range for period
+     */
+    protected const DATE_RANGE = [
+        '12 hours' => 'PT1H', '24 hours' => 'PT1H', '3 days' => 'PT4H', '7 days' => 'PT8H', '15 days' => 'PT12H', '30 days' => 'P2D', '3 months' => 'P7D', '6 months' => 'P15D', '1 year' => 'P1M'
+    ];
+
+
+    /**
      * @Rest\Get("/params", name="params")
      * @return JsonResponse
      */
     public function getParams(): JsonResponse
     {
         return $this->json([
-            ['12h', '24h', '3d', '7d', '15d', '30d', '3m', '6m', '1y'],
+            array_keys(self::DATE_RANGE),
             ["USD", "EUR", "RUB",]
         ]);
     }
@@ -32,31 +46,64 @@ class ApiController extends AbstractFOSRestController
      * @Rest\Get("/rate", name="rate" )
      * @param Request $request
      * @return JsonResponse
+     * @throws \Exception
      */
     public function getRate(Request $request): JsonResponse
     {
         $range = $request->get('range');
-        $currency = $request->get('currency');
-        $labels = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-        shuffle($labels);
-        $data = array_map(function () {
-            return random_int(-20, 20);
+        $currency = $request->get('currency','USD');
+        $currency_id = $this->getDoctrine()->getRepository(Currencies::class)->findOneBy(['code' => $currency]);
+        $labels = self::createDates($range);
+        $data = array_map(function ($date) use ($currency_id) {
+            $rate = $this->ratesQuery($currency_id->id, $date);
+            return $rate->rate_value ?? 0;
         }, $labels);
         shuffle($data);
 
         return $this->json([
-            $labels,
-            [
-                [
-                    'label' => 'BTC/' . $currency,
-                    'data' => $data
-                ],
+            'labels' => $labels,
+            'datasets' => [
                 [
                     'label' => 'BTC/' . $currency,
                     'data' => $data
                 ]
             ]
         ]);
+    }
+
+    public function ratesQuery($currency, $date){
+       return $this->getDoctrine()
+            ->getRepository(Rates::class)
+            ->findAllFromCurrencyAndDate($currency, $date);
+    }
+
+    /**
+     * @param string $range
+     * @param null $interval
+     * @return array
+     * @throws \Exception
+     */
+    public static function createDates(string $range, $interval = null): array
+    {
+        $start = new DateTime('-' . $range);
+        $interval = new DateInterval($interval ?? self::intervalGet($range));
+        $end = new DateTime(NULL);
+        $period = new DatePeriod($start, $interval, $end);
+
+        foreach ($period as $date) {
+            $dateArray[] = $date->format('Y-m-d H:00');
+        }
+
+        return $dateArray ?? [];
+    }
+
+    /**
+     * @param string $val
+     * @return string
+     */
+    public static function intervalGet(string $val): string
+    {
+        return self::DATE_RANGE[$val] ?? 'PT1H';
     }
 
 }

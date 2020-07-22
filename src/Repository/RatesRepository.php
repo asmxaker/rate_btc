@@ -18,33 +18,19 @@ class RatesRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Rates::class);
     }
-
-    // /**
-    //  * @return Rates[] Returns an array of Rates objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findAllFromCurrencyAndDate($currency, $date): array
     {
-        return $this->createQueryBuilder('r')
-            ->andWhere('r.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('r.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $entityManager = $this->getEntityManager();
 
-    /*
-    public function findOneBySomeField($value): ?Rates
-    {
-        return $this->createQueryBuilder('r')
-            ->andWhere('r.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $query = $entityManager->createQuery(
+            'SELECT p
+            FROM App\Entity\Rates p
+            WHERE p.currency_id = :currency
+            AND p.created_at = :dateTime
+            limit 1 '
+        )->setParameter('currency', $currency, 'dateTime', $date);
+
+        // returns an array of Product objects
+        return $query->getResult();
     }
-    */
 }

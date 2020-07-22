@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-      {{dataCollection}}
     <div class="form-row">
       <div class="col">
         <select class="form-control" v-model="range">
@@ -16,7 +15,7 @@
         <button class="btn btn-info" @click="fillData">Fill</button>
       </div>
     </div>
-    <line-chart class="small" :chart-data="dataCollection"
+    <line-chart class="small" :chart-data="datacollection"
                 :options="options"></line-chart>
 
   </div>
@@ -30,14 +29,13 @@
     components: {
       LineChart
     },
-    props: {
-    },
+    props: {},
     data() {
       return {
-        dataCollection: {},
+        datacollection: null,
         dateRange: [],
         currencies: [],
-        range: '12h',
+        range: '12 hours',
         currency: 'USD',
         options: {
           responsive: true,
@@ -52,19 +50,22 @@
       this.getOptions()
     },
     methods: {
-      async fillData() {
-        await axios.get('/api/rate', {
+      fillData () {
+        axios.get('/api/rate', {
           params: {
             range: this.range,
             currency: this.currency
           }
         })
         .then(response => {
-          [this.dataCollection.labels, this.dataCollection.datasets] = response.data
+          this.datacollection = {
+            labels: response.data.labels,
+            datasets: response.data.datasets,
+          }
         });
       },
-      async getOptions() {
-        await axios.get('/api/params').then(response => {
+      getOptions() {
+        axios.get('/api/params').then(response => {
           [this.dateRange, this.currencies] = response.data
         });
       }

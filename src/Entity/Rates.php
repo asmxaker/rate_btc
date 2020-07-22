@@ -21,7 +21,7 @@ class Rates
      * @ORM\ManyToOne(targetEntity=Currencies::class, inversedBy="rates")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $currency_id;
+    private $currency;
 
     /**
      * @ORM\Column(type="float")
@@ -32,7 +32,7 @@ class Rates
     /**
      * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
      */
-    private $created_at;
+    public $created_at;
 
     public function __construct()
     {
@@ -46,12 +46,12 @@ class Rates
 
     public function getCurrencyId(): ?Currencies
     {
-        return $this->currency_id;
+        return $this->currency;
     }
 
-    public function setCurrencyId(?Currencies $currency_id): self
+    public function setCurrencyId(?Currencies $currency): self
     {
-        $this->currency_id = $currency_id;
+        $this->currency = $currency;
 
         return $this;
     }
