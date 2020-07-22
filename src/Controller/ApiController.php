@@ -3,10 +3,10 @@
 
 namespace App\Controller;
 
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
 
 /**
  * Class ApiController
@@ -36,7 +36,7 @@ class ApiController extends AbstractFOSRestController
     public function getRate(Request $request): JsonResponse
     {
         $range = $request->request->get('range');
-        dd($request->request);
+        // dd($request->request);
         $currency = $request->request->get('currency');
 
         $labels = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
