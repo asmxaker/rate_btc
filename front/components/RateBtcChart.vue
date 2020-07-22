@@ -1,13 +1,14 @@
 <template>
   <div class="container">
+      {{dataCollection}}
     <div class="form-row">
       <div class="col">
-        <select class="form-control" @change="changeRange">
+        <select class="form-control" v-model="range">
           <option v-for="el in dateRange" :value="el">{{el}}</option>
         </select>
       </div>
       <div class="col">
-        <select class="form-control" @change="changeCurrency">
+        <select class="form-control" v-model="currency">
           <option v-for="el in currencies" :value="el">{{el}}</option>
         </select>
       </div>
@@ -52,7 +53,12 @@
     },
     methods: {
       async fillData() {
-        await axios.post('/api/rate', { range: this.range, currency: this.currency })
+        await axios.get('/api/rate', {
+          params: {
+            range: this.range,
+            currency: this.currency
+          }
+        })
         .then(response => {
           [this.dataCollection.labels, this.dataCollection.datasets] = response.data
         });
@@ -61,13 +67,6 @@
         await axios.get('/api/params').then(response => {
           [this.dateRange, this.currencies] = response.data
         });
-      },
-
-      changeRange(value) {
-        this.range = value;
-      },
-      changeCurrency(value) {
-        this.currency = value;
       }
     }
   }

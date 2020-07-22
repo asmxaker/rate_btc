@@ -29,24 +29,28 @@ class ApiController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post("/rate", name="rate" )
+     * @Rest\Get("/rate", name="rate" )
      * @param Request $request
      * @return JsonResponse
      */
     public function getRate(Request $request): JsonResponse
     {
-        $range = $request->request->get('range');
-        // dd($request->request);
-        $currency = $request->request->get('currency');
-
+        $range = $request->get('range');
+        $currency = $request->get('currency');
         $labels = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        shuffle($labels);
         $data = array_map(function () {
             return random_int(-20, 20);
         }, $labels);
+        shuffle($data);
 
         return $this->json([
             $labels,
             [
+                [
+                    'label' => 'BTC/' . $currency,
+                    'data' => $data
+                ],
                 [
                     'label' => 'BTC/' . $currency,
                     'data' => $data
