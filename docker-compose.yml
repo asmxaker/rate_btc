@@ -47,6 +47,15 @@ services:
         depends_on:
             - mysql
 
+    cron:
+        container_name: "${PROJ_NAME}_cron"
+        build: ./docker/php
+        volumes:
+            - ./:/var/www/html
+        command: ["/bin/bash", "-c", "cron"]
+        depends_on:
+            - php
+
 volumes:
     mysql:
         driver: local
