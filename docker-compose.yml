@@ -23,7 +23,6 @@ services:
             - ./:/var/www/html
         depends_on:
             - mysql
-
     nginx:
         container_name: "${PROJ_NAME}_nginx"
         build: ./docker/nginx
@@ -34,7 +33,6 @@ services:
             - "8002:80"
         depends_on:
             - php
-
     phpmyadmin:
         container_name: "${PROJ_NAME}_phpmyadmin"
         image: phpmyadmin/phpmyadmin
@@ -47,15 +45,18 @@ services:
         depends_on:
             - mysql
 
-    cron:
-        container_name: "${PROJ_NAME}_cron"
-        build: ./docker/php
+    supervisor:
+        build: docker/php
+        container_name: "${PROJ_NAME}_visor"
         volumes:
             - ./:/var/www/html
-        command: ["/bin/bash", "-c", "cron"]
+            - ./docker/php/supervisor/conf.d:/etc/supervisor/conf.d
+            - ./docker/php/supervisor/logs:/var/log
+        ports:
+            - 9001:9001
+        command: ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
         depends_on:
             - php
-
 volumes:
     mysql:
         driver: local
