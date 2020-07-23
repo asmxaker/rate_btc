@@ -38,7 +38,7 @@
         range: '12 hours',
         currency: 'USD',
         options: {
-          responsive: true,
+          maintainAspectRatio: false,
           animation: {
             duration: 0
           }

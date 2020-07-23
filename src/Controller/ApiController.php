@@ -51,12 +51,12 @@ class ApiController extends AbstractFOSRestController
     public function getRate(Request $request): JsonResponse
     {
         $range = $request->get('range');
-        $currency = $request->get('currency','USD');
+        $currency = $request->get('currency', 'USD');
         $currency_id = $this->getDoctrine()->getRepository(Currencies::class)->findOneBy(['code' => $currency]);
         $labels = self::createDates($range);
         $data = array_map(function ($date) use ($currency_id) {
-            $rate = $this->ratesQuery($currency_id->id, $date);
-            return $rate->rate_value ?? 0;
+            $rate = $this->ratesQuery($currency_id, $date);
+            return !empty($rate) ? $rate->getRateValue() : 0;
         }, $labels);
         shuffle($data);
 
@@ -65,16 +65,19 @@ class ApiController extends AbstractFOSRestController
             'datasets' => [
                 [
                     'label' => 'BTC/' . $currency,
+                    'fill' => false,
+                    'borderColor' => '#f00',
                     'data' => $data
                 ]
             ]
         ]);
     }
 
-    public function ratesQuery($currency, $date){
-       return $this->getDoctrine()
+    public function ratesQuery($currency, $date)
+    {
+        return $this->getDoctrine()
             ->getRepository(Rates::class)
-            ->findAllFromCurrencyAndDate($currency, $date);
+            ->findOneBy(['currency' => $currency, 'created_at' => new DateTime($date)]);
     }
 
     /**
