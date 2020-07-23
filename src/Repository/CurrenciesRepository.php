@@ -19,4 +19,14 @@ class CurrenciesRepository extends ServiceEntityRepository
         parent::__construct($registry, Currencies::class);
     }
 
+    public function findAllArray(): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->orderBy('c.code', 'ASC');
+        $query = $qb->getQuery();
+
+        return $query->getArrayResult();
+    }
+
+
 }

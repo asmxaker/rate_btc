@@ -8,7 +8,7 @@ use App\Entity\Rates;
 use DateInterval;
 use DatePeriod;
 use DateTime;
-use DateTimeZone;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -36,9 +36,11 @@ class ApiController extends AbstractFOSRestController
      */
     public function getParams(): JsonResponse
     {
+       $currencies = $this->currenciesGet();
+
         return $this->json([
             array_keys(self::DATE_RANGE),
-            ["USD", "EUR", "RUB",]
+            $currencies
         ]);
     }
 
@@ -73,6 +75,12 @@ class ApiController extends AbstractFOSRestController
         ]);
     }
 
+    /**
+     * @param $currency
+     * @param $date
+     * @return object|null
+     * @throws \Exception
+     */
     public function ratesQuery($currency, $date)
     {
         return $this->getDoctrine()
@@ -108,5 +116,21 @@ class ApiController extends AbstractFOSRestController
     {
         return self::DATE_RANGE[$val] ?? 'PT1H';
     }
+
+
+    /**
+     * @return array
+     */
+    public function currenciesGet(): array
+    {
+        $currencies = $this->getDoctrine()->getRepository(Currencies::class)->findAllArray();
+        $collection = new ArrayCollection($currencies);
+        $filteredCollection = $collection->map(function ($el) {
+            return $el['code'];
+        });
+
+        return $filteredCollection->toArray();
+    }
+
 
 }
