@@ -29,3 +29,7 @@ RUN apt-get install -y libicu-dev libldap2-dev libjpeg62-turbo-dev libpng-dev li
     docker-php-ext-install soap && \
     docker-php-ext-install bcmath && \
     docker-php-ext-install exif
+
+# composer
+RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
+RUN chmod 0755 /usr/bin/composer
